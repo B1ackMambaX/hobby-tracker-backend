@@ -3,7 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import router from './router';
+import router from './router/index.js';
 
 
 dotenv.config();
