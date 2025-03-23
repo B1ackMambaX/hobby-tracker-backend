@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import tokenService from "./tokenService.js";
 import UserDto from "../dtos/userDto.js";
 import ApiError from "../exceptions/apiErrors.js";
+import tokenModel from "../models/tokenModel.js";
 
 class UserService {
     async register(email, password) {
@@ -41,6 +42,11 @@ class UserService {
             ...tokens,
             user: userDto,
         }
+    }
+
+    async logout(refreshToken) {
+        const token = await tokenService.removeToken(refreshToken);
+        return token;
     }
 }
 
