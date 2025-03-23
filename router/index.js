@@ -1,9 +1,13 @@
 import {Router} from "express";
 import UserController from "../controllers/userController.js";
+import {body} from "express-validator";
 
 const router = new Router();
 
-router.post('/register', UserController.register);
+router.post('/register',
+    body('email').isEmail(),
+    body('password').isLength({min: 8}),
+    UserController.register);
 router.post('/login', UserController.login);
 router.post('/logout', UserController.logout);
 router.get('/refresh', UserController.refresh);
