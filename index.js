@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import router from './router/index.js';
 import errorMiddleware from './middlewares/errorMiddleware.js';
+import swaggerDocs from './swagger.js';
 
 
 dotenv.config();
@@ -15,8 +16,9 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
+swaggerDocs(app);
 app.use('/api', router);
-app.use(errorMiddleware)
+app.use(errorMiddleware);
 
 const runServer = async () => {
     try {
