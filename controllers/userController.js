@@ -7,10 +7,14 @@ class UserController {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                return next(ApiError.BadRequestError("Error on body validation", errors.array()));
+                return next(ApiError.BadRequestError("Validation error", errors.array()));
             }
 
             const {email, password} = req.body;
+            if (!email || !password) {
+                return next(ApiError.BadRequestError("Email and password are required"));
+            }
+
             const userData = await userService.register(email, password);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
             return res.json(userData);
@@ -22,6 +26,10 @@ class UserController {
     async login(req, res, next) {
         try {
             const {email, password} = req.body;
+            if (!email || !password) {
+                return next(ApiError.BadRequestError("Email and password are required"));
+            }
+
             const userData = await userService.login(email, password);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
             return res.json(userData);
@@ -33,6 +41,10 @@ class UserController {
     async logout(req, res, next) {
         try {
             const {refreshToken} = req.cookies;
+            if (!refreshToken) {
+                return next(ApiError.BadRequestError("Refresh token is missing"));
+            }
+
             const token = await userService.logout(refreshToken);
             res.clearCookie('refreshToken');
             return res.json(token);
@@ -44,6 +56,9 @@ class UserController {
     async refresh(req, res, next) {
         try {
             const {refreshToken} = req.cookies;
+            if (!refreshToken) {
+                return next(ApiError.UnauthorizedError());
+            }
             const userData = await userService.refresh(refreshToken);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
             return res.json(userData);
@@ -54,6 +69,7 @@ class UserController {
 
     async getUsers(req, res, next) {
         try {
+            //проверки не нужны
             const users = await userService.getAllUsers();
             return res.json(users);
         } catch (e) {

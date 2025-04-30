@@ -4,6 +4,7 @@ import ApiError from '../exceptions/apiErrors.js';
 class TripController {
     async getTrips(req, res, next) {
         try {
+            // проверку не надо, т.к. userId берется из authMiddleware
             const trips = await tripService.getTripsByUserId(req.user.id);
             res.json(trips);
         } catch (e) {
@@ -13,6 +14,11 @@ class TripController {
 
     async createTrip(req, res, next) {
         try {
+            const { name, startDate, endDate, budget } = req.body;
+            if (!name || !startDate || !endDate || !budget) {
+                return next(ApiError.BadRequestError("Missing required fields: name, startDate, endDate or budget"));
+            }
+
             const tripData = { ...req.body, userId: req.user.id };
             const trip = await tripService.addTrip(tripData);
             res.status(201).json(trip);
@@ -24,6 +30,10 @@ class TripController {
     async deleteTrip(req, res, next) {
         try {
             const { id } = req.params;
+            if (!id) {
+                return next(ApiError.BadRequestError("Parameter id is missing"));
+            }
+
             await tripService.removeTrip(id);
             res.json({ success: true });
         } catch (e) {
