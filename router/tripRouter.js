@@ -8,6 +8,7 @@ router.use(authMiddleware);
 
 router.get('/', TripController.getTrips);
 router.post('/', TripController.createTrip);
+router.post('/apply-template', TripController.applyTemplate);
 router.delete('/:id', TripController.deleteTrip);
 
 export default router;

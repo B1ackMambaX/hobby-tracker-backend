@@ -3,6 +3,7 @@ import userRouter from "./userRouter.js";
 import tripRouter from "./tripRouter.js";
 import taskRouter from "./taskRouter.js";
 import spendRouter from "./spendRouter.js";
+import tripTemplateRouter from "./tripTemplateRouter.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = new Router();
@@ -12,6 +13,7 @@ router.use('/auth', userRouter); // Все auth-роуты (/register, /login и
 router.use('/trips', authMiddleware, tripRouter); // Маршруты для путешествий
 router.use('/tasks', authMiddleware, taskRouter); // Маршруты для задач
 router.use('/spends', authMiddleware, spendRouter); // Маршруты для трат
+router.use('/trip-templates', authMiddleware, tripTemplateRouter);
 
 // Health check endpoint
 router.get('/health', (req, res) => {
