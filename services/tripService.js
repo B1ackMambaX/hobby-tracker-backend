@@ -7,7 +7,7 @@ class TripService {
     }
 
     async addTrip(tripData) {
-        const trip = new Trip(tripData);
+        const trip = new Trip({...tripData, status: 'active'});
         return await trip.save();
     }
 

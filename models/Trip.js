@@ -5,6 +5,11 @@ const TripSchema = new mongoose.Schema({
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     budget: { type: Number, required: true },
+    status: {
+        type: String,
+        enum: ['active', 'finished'],
+        default: 'inProgress'
+    },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 

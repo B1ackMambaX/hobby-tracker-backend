@@ -10,12 +10,12 @@ class UserController {
                 return next(ApiError.BadRequestError("Validation error", errors.array()));
             }
 
-            const {email, password} = req.body;
+            const {email, password, name} = req.body;
             if (!email || !password) {
                 return next(ApiError.BadRequestError("Email and password are required"));
             }
 
-            const userData = await userService.register(email, password);
+            const userData = await userService.register(email, password, name);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
             return res.json(userData);
         } catch (e) {
