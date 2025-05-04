@@ -7,13 +7,13 @@ import tokenModel from "../models/tokenModel.js";
 import userModel from "../models/userModel.js";
 
 class UserService {
-    async register(email, password) {
+    async register(email, password, name) {
         const candidate = await UserModel.findOne({email});
         if (candidate !== null) {
             throw ApiError.BadRequestError("User already exists");
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await UserModel.create({email, password: hashedPassword});
+        const user = await UserModel.create({email, password: hashedPassword, name});
 
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
