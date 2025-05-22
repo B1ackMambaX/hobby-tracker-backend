@@ -51,7 +51,7 @@ class TripController {
             if (!startDate || !endDate || !templateId) {
                 return next(ApiError.BadRequestError("Missing required fields"));
             }
-            const userId = req.user.id;  // ← Вот это ключевое изменение!
+            const userId = req.user.id;
             // Получаем шаблон
             const template = await tripsTemplateService.getById(templateId);
 

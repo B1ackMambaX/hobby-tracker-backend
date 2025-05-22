@@ -10,7 +10,7 @@ class TripTemplateController {
             next(e);
         }
     }
-    async createTemplate(req, res, next) {
+    async add (req, res, next) {
         try {
             const { name, budget, description, imageUrl, checklist, daysLength } = req.body;
 
@@ -18,15 +18,12 @@ class TripTemplateController {
                 return next(ApiError.BadRequestError("All fields are required"));
             }
 
-            const template = await tripsTemplateService.createTemplate({
-                name,
-                budget,
-                description,
-                imageUrl,
-                checklist,
-                daysLength
-            });
+            const templateData = {
+                ...req.body,
+                createdBy: req.user.id
+            };
 
+            const template = await tripsTemplateService.createTemplate(templateData);
             res.status(201).json(template);
         } catch (e) {
             next(e);
