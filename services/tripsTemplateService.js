@@ -1,21 +1,22 @@
 import TripTemplate from '../models/TripTemplate.js';
+import User from '../models/userModel.js';
 import ApiError from '../exceptions/apiErrors.js';
 
 class TripsTemplateService {
     async getAll() {
-        return await TripTemplate.find();
+        return await TripTemplate.find().populate('createdBy', 'email');
     }
 
     async getById(id) {
-        const template = await TripTemplate.findById(id);
+        const template = await TripTemplate.findById(id).populate('createdBy', 'email');
         if (!template) {
             throw ApiError.BadRequestError('Template not found');
         }
         return template;
     }
 
-    async createTemplate(data) {
-        return await TripTemplate.create(data);
+    async createTemplate(templateData) {
+        return await TripTemplate.create(templateData);
     }
 }
 

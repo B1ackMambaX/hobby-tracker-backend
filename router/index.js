@@ -15,7 +15,6 @@ router.use('/tasks', authMiddleware, taskRouter); // Маршруты для з�
 router.use('/spends', authMiddleware, spendRouter); // Маршруты для трат
 router.use('/trip-templates', authMiddleware, tripTemplateRouter);
 
-// Health check endpoint
 router.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK' });
 });

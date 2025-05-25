@@ -5,7 +5,8 @@ import authMiddleware from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
 router.use(authMiddleware);
-router.post('/', TripTemplateController.createTemplate);
+
 router.get('/', TripTemplateController.getAll);
+router.post('/', TripTemplateController.add);
 
 export default router;
