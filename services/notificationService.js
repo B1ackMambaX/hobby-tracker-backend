@@ -4,6 +4,10 @@ import Task from '../models/Task.js';
 class NotificationService {
     // Создание напоминания
     async createReminder(userId, taskId, message, remindAt) {
+        // Удаляем старые напоминания для этой задачи
+        await Notification.deleteMany({ taskId });
+
+        // Создаем новое напоминание
         return await Notification.create({
             userId,
             taskId,
@@ -15,16 +19,20 @@ class NotificationService {
 
     // Получение активных напоминаний
     async getActiveReminders(userId) {
-        console.log("Searching reminders for user:", userId);
-        const result = await Notification.find({
+        const now = new Date();
+        return await Notification.find({
             userId,
-            $or: [
-                { status: 'pending', remindAt: { $lte: new Date() } },
-                { status: 'postponed', remindAt: { $lte: new Date() } }
-            ]
-        }).populate('taskId');
-        console.log("Found notifications:", result);
-        return result;
+            status: 'pending',
+            remindAt: { $lte: now }
+        })
+            .populate('taskId', 'name status tripId')
+            .populate({
+                path: 'taskId',
+                populate: {
+                    path: 'tripId',
+                    select: 'name startDate'
+                }
+            });
     }
 
     // Отметить как выполненное

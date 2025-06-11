@@ -2,7 +2,7 @@ import notificationService from '../services/notificationService.js';
 import ApiError from '../exceptions/apiErrors.js';
 
 class NotificationController {
-    // Получить активные напоминания
+    // Получить активные напоминания для проверки
     async getActive(req, res, next) {
         try {
             console.log("Current time:", new Date()); //текущее время
