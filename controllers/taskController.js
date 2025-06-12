@@ -29,7 +29,13 @@ class TaskController {
                 return next(ApiError.BadRequestError("Task name is required"));
             }
 
-            const taskData = { ...req.body, tripId: req.params.tripId };
+            // Добавляем userId из авторизации
+            const taskData = {
+                ...req.body,
+                tripId,
+                userId: req.user.id
+            };
+
             const task = await taskService.addTask(taskData);
             res.status(201).json(task);
         } catch (e) {
