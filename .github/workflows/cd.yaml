@@ -1,0 +1,80 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  # BASIC ENV
+  BASE_DIR: ${{ vars.BASE_DIR }}
+  PROJECT_NAME: ${{ vars.PROJECT_NAME || 'backend' }}
+  SERVER_SSH: ${{ secrets.SERVER_SSH }}
+  SERVER_USER: ${{ secrets.SERVER_USER }}
+  SERVER_HOST: ${{ secrets.SERVER_HOST }}
+
+  # APP ENV
+  PORT: 4000
+  APP_URL: ${{ vars.APP_URL }}
+  JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+  JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+
+  # DB ENV
+  MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+  MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+  DB_URL: ${{ secrets.DB_URL }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .env.prod file
+        run: |
+          cat << EOF > .env.prod
+          # APP ENV
+          PORT=${{ env.PORT }}
+          APP_URL=${{ env.APP_URL }}
+          JWT_ACCESS_SECRET=${{ env.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
+
+          # DB ENV
+          MONGO_INITDB_ROOT_USERNAME=${{ env.MONGO_INITDB_ROOT_USERNAME }}
+          MONGO_INITDB_ROOT_PASSWORD=${{ env.MONGO_INITDB_ROOT_PASSWORD }}
+          DB_URL=${{ env.DB_URL }}
+          EOF
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ env.SERVER_SSH }}
+
+      - name: Copy files via SCP
+        run: |
+          scp -o StrictHostKeyChecking=no -r ./* \
+            ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/${{ env.BASE_DIR }}/${{ env.PROJECT_NAME }}
+
+      - name: Copy ENV file
+        run: |
+          scp -o StrictHostKeyChecking=no ./.env.prod \
+            ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/${{ env.BASE_DIR }}/${{ env.PROJECT_NAME }}
+
+      - name: Run docker-compose on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} \
+            "cd /${{ env.BASE_DIR }}/${{ env.PROJECT_NAME }} && \
+             make docker-setup && \
+             sudo docker compose down && \
+             sudo docker compose up -d --build"
+
+      - name: Cleanup unused Docker resources on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            cd /${{ env.BASE_DIR }}/${{ env.PROJECT_NAME }} && \
+            sudo docker container prune -f && \
+            sudo docker image prune -af && \
+            sudo docker volume prune -f && \
+            sudo docker network prune -f
+          "

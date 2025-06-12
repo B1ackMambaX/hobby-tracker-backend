@@ -1,0 +1,43 @@
+networks:
+  app-net:
+    external: true
+
+volumes:
+  mongo-data:
+
+services:
+  database:
+    container_name: database
+    image: mongo
+    restart: unless-stopped
+    expose:
+      - 27017
+    networks:
+      - app-net
+    env_file:
+      - .env.prod
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  backend:
+    build: .
+    container_name: backend
+    env_file:
+      - .env.prod
+    networks:
+      - app-net
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4000/api/health || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
