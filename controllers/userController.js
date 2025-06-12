@@ -2,6 +2,10 @@ import userService from "../services/userService.js";
 import {validationResult} from "express-validator";
 import ApiError from "../exceptions/apiErrors.js";
 
+
+const APP_URL = process.env.APP_URL;
+const IS_DEV = Boolean(process.env.IS_DEV);
+
 class UserController {
     async register(req, res, next) {
         try {
@@ -16,7 +20,7 @@ class UserController {
             }
 
             const userData = await userService.register(email, password, name);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, domain: APP_URL, secure: !IS_DEV});
             return res.json(userData);
         } catch (e) {
             next(e);
@@ -31,7 +35,7 @@ class UserController {
             }
 
             const userData = await userService.login(email, password);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, domain: APP_URL, secure: !IS_DEV});
             return res.json(userData);
         } catch (e) {
             next(e);
@@ -60,7 +64,7 @@ class UserController {
                 return next(ApiError.UnauthorizedError());
             }
             const userData = await userService.refresh(refreshToken);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, domain: APP_URL, secure: !IS_DEV});
             return res.json(userData);
         } catch (e) {
             next(e);
