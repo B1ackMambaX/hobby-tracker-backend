@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 
 
 dotenv.config();
-const APP_URL = process.env.APP_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, '');
 const IS_DEV = Boolean(process.env.IS_DEV);
 
 class UserController {
@@ -22,7 +21,12 @@ class UserController {
             }
 
             const userData = await userService.register(email, password, name);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, domain: APP_URL, secure: !IS_DEV, sameSite: true});
+            res.cookie('refreshToken', userData.refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                secure: !IS_DEV,
+                sameSite: true
+            });
             return res.json(userData);
         } catch (e) {
             next(e);
@@ -37,7 +41,12 @@ class UserController {
             }
 
             const userData = await userService.login(email, password);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, domain: APP_URL, secure: !IS_DEV, sameSite: true});
+            res.cookie('refreshToken', userData.refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                secure: !IS_DEV,
+                sameSite: true
+            });
             return res.json(userData);
         } catch (e) {
             next(e);
@@ -66,7 +75,12 @@ class UserController {
                 return next(ApiError.UnauthorizedError());
             }
             const userData = await userService.refresh(refreshToken);
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, domain: APP_URL, secure: !IS_DEV, sameSite: true});
+            res.cookie('refreshToken', userData.refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                secure: !IS_DEV,
+                sameSite: true
+            });
             return res.json(userData);
         } catch (e) {
             next(e);
