@@ -19,8 +19,8 @@ class NotificationService {
 
     // Получение активных напоминаний
     async getActiveReminders(userId) {
-        const now = new Date();
-        return await Notification.find({
+        const now = new Date(new Date().setHours(0, 0, 0, 0));
+        return Notification.find({
             userId,
             status: 'pending',
             remindAt: { $lte: now }
@@ -54,7 +54,7 @@ class NotificationService {
 
     // Отложить напоминание
     async postponeReminder(notificationId, until) {
-        return await Notification.findByIdAndUpdate(
+        return Notification.findByIdAndUpdate(
             notificationId,
             {
                 status: 'postponed',
@@ -65,7 +65,7 @@ class NotificationService {
         );
     }
     async getAllUserNotifications(userId) {
-        return await Notification.find({ userId }).populate('taskId');
+        return Notification.find({ userId }).populate('taskId');
     }
 
 }

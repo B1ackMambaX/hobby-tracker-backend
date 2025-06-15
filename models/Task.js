@@ -7,7 +7,7 @@ const TaskSchema = new mongoose.Schema({
         enum: ['done', 'inProgress'],
         default: 'inProgress'
     },
-    date: { type: Date, default: Date.now },
+    date: { type: Date },
     tripId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip', required: true }
 });
 

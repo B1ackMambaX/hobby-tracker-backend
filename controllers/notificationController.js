@@ -5,9 +5,7 @@ class NotificationController {
     // Получить активные напоминания для проверки
     async getActive(req, res, next) {
         try {
-            console.log("Current time:", new Date()); //текущее время
             const reminders = await notificationService.getActiveReminders(req.user.id);
-            console.log("Found reminders:", reminders); // найденные уведомления
             res.json(reminders);
         } catch (e) {
             next(e);

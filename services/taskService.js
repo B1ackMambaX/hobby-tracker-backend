@@ -8,23 +8,55 @@ class TaskService {
     }
 
     async addTask(taskData) {
-        // Добавляем проверку userId
         if (!taskData.userId) {
             throw new Error('userId is required for notifications');
         }
 
+        if (!taskData.date) {
+            throw new Error('Task date is required to schedule a reminder');
+        }
+
         const task = await Task.create(taskData);
 
-        // Создаём уведомление (напоминание через 24 часа)
-        await notificationService.createReminder(
-            taskData.userId, // Должен передаваться из контроллера
-            task._id,
-            `Не забудьте: ${taskData.name}`,
-            new Date() // Через 24 часа
-        );
+        const taskDate = new Date(taskData.date);
+        const now = new Date();
+
+        // Очищаем время у taskDate (делаем 00:00)
+        taskDate.setHours(0, 0, 0, 0);
+
+        // Дата напоминания — за 1 день
+        const oneDayBefore = new Date(taskDate);
+        oneDayBefore.setDate(oneDayBefore.getDate() - 1);
+
+        // Также обнуляем время у даты "сегодня"
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let reminderDate = null;
+
+        if (oneDayBefore >= today) {
+            reminderDate = oneDayBefore;
+        } else if (taskDate >= today) {
+            reminderDate = taskDate;
+        }
+
+        if (reminderDate) {
+            await notificationService.createReminder(
+                taskData.userId,
+                task._id,
+                `Не забудьте: ${taskData.name}`,
+                reminderDate
+            );
+        } else {
+            console.log('Не удалось создать уведомление — задача в прошлом.');
+        }
 
         return task;
     }
+
+
+
+
 
     async removeTask(taskId) {
         const result = await Task.deleteOne({ _id: taskId });
@@ -38,13 +70,6 @@ class TaskService {
         const task = await Task.findByIdAndUpdate(taskId, newData, { new: true });
         if (!task) {
             throw ApiError.BadRequestError('Task not found');
-        }
-        if (newData.status === 'done') {
-            await notificationService.createNotification(
-                task.userId,
-                task._id,
-                `Задача "${task.name}" выполнена!`
-            );
         }
         return task;
     }
