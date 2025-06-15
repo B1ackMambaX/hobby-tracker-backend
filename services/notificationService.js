@@ -1,5 +1,6 @@
 import Notification from '../models/Notification.js';
 import Task from '../models/Task.js';
+import mongoose from "mongoose";
 
 class NotificationService {
     // Создание напоминания
@@ -64,6 +65,15 @@ class NotificationService {
             { new: true }
         );
     }
+
+    async deleteRemindersByTaskId(taskId) {
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            throw new Error('Invalid task ID');
+        }
+
+        return Notification.deleteMany({taskId}); // содержит info: { deletedCount: ... }
+    }
+
     async getAllUserNotifications(userId) {
         return Notification.find({ userId }).populate('taskId');
     }

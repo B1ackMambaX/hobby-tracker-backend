@@ -54,14 +54,12 @@ class TaskService {
         return task;
     }
 
-
-
-
-
     async removeTask(taskId) {
         const result = await Task.deleteOne({ _id: taskId });
         if (result.deletedCount === 0) {
             throw ApiError.BadRequestError('Task not found');
+        } else {
+            await notificationService.deleteRemindersByTaskId(taskId);
         }
         return { success: true };
     }
