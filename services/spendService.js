@@ -18,6 +18,11 @@ class SpendService {
         }
         return { success: true };
     }
+
+    async removeSpendsByTripId(tripId) {
+        const result = await Spend.deleteMany({ tripId });
+        return result.deletedCount;
+    }
 }
 
 export default new SpendService();
