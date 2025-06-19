@@ -33,12 +33,8 @@ class TripController {
     async deleteTrip(req, res, next) {
         try {
             const { id } = req.params;
-            if (!id) {
-                return next(ApiError.BadRequestError("Parameter id is missing"));
-            }
-
-            await tripService.removeTrip(id);
-            res.json({ success: true });
+            const result = await tripService.removeTrip(id);
+            res.json(result);
         } catch (e) {
             next(e);
         }
