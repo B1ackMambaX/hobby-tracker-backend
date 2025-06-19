@@ -40,8 +40,6 @@ class TripService {
 
         return {
             success: true,
-            deletedTasksCount: tasks.length,
-            deletedSpendsCount: spends.length
         };
     }
 }

@@ -12,43 +12,41 @@ class TaskService {
             throw new Error('userId is required for notifications');
         }
 
-        if (!taskData.date) {
-            throw new Error('Task date is required to schedule a reminder');
-        }
-
         const task = await Task.create(taskData);
 
-        const taskDate = new Date(taskData.date);
-        const now = new Date();
+        if (taskData.date) {
+            const taskDate = new Date(taskData.date);
+            const now = new Date();
 
-        // Очищаем время у taskDate (делаем 00:00)
-        taskDate.setHours(0, 0, 0, 0);
+            // Очищаем время у taskDate (делаем 00:00)
+            taskDate.setHours(0, 0, 0, 0);
 
-        // Дата напоминания — за 1 день
-        const oneDayBefore = new Date(taskDate);
-        oneDayBefore.setDate(oneDayBefore.getDate() - 1);
+            // Дата напоминания — за 1 день
+            const oneDayBefore = new Date(taskDate);
+            oneDayBefore.setDate(oneDayBefore.getDate() - 1);
 
-        // Также обнуляем время у даты "сегодня"
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+            // Также обнуляем время у даты "сегодня"
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-        let reminderDate = null;
+            let reminderDate = null;
 
-        if (oneDayBefore >= today) {
-            reminderDate = oneDayBefore;
-        } else if (taskDate >= today) {
-            reminderDate = taskDate;
-        }
+            if (oneDayBefore >= today) {
+                reminderDate = oneDayBefore;
+            } else if (taskDate >= today) {
+                reminderDate = taskDate;
+            }
 
-        if (reminderDate) {
-            await notificationService.createReminder(
-                taskData.userId,
-                task._id,
-                `Не забудьте: ${taskData.name}`,
-                reminderDate
-            );
-        } else {
-            console.log('Не удалось создать уведомление — задача в прошлом.');
+            if (reminderDate) {
+                await notificationService.createReminder(
+                    taskData.userId,
+                    task._id,
+                    `Не забудьте: ${taskData.name}`,
+                    reminderDate
+                );
+            } else {
+                console.log('Не удалось создать уведомление — задача в прошлом.');
+            }
         }
 
         return task;

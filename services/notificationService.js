@@ -74,6 +74,18 @@ class NotificationService {
         return Notification.deleteMany({taskId}); // содержит info: { deletedCount: ... }
     }
 
+    async deleteRemindersByTaskIds(taskIds) {
+        if (!Array.isArray(taskIds)) {
+            throw new Error('taskIds must be an array of task IDs');
+        }
+
+        const result = await Notification.deleteMany({
+            taskId: { $in: taskIds }
+        });
+
+        return { deletedCount: result.deletedCount };
+    }
+
     async getAllUserNotifications(userId) {
         return Notification.find({ userId }).populate('taskId');
     }
