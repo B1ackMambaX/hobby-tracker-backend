@@ -45,7 +45,7 @@ class TripController {
             const { startDate, endDate, templateId } = req.body;
             const userId = req.user.id;
             // Валидация дат
-            const now = new Date();
+            const now = new Date().setHours(0, 0, 0, 0);
             const start = new Date(startDate);
             const end = new Date(endDate);
 
